@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===================================================================
 
     // URL da sua API online na Render (já preenchida)
-    const API_URL = 'https://site-casamento-1-0ufl.onrender.com/api';
+    const API_URL = 'const API_URL = '/api
     // ===================================================================
 
     const listaPresentesContainer = document.getElementById('lista-presentes');
