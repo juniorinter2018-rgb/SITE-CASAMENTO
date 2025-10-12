@@ -1,9 +1,5 @@
-// script.js (Versão Final com texto do WhatsApp corrigido)
+// script.js (Versão Final com Gerador de QR Code Híbrido)
 document.addEventListener('DOMContentLoaded', () => {
-
-    const MINHA_CHAVE_PIX = "mariannavidal12345@gmail.com";
-    const MEU_NOME_PIX = "Marianna Vidal da Silva - Nubank";
-    const MEU_NUMERO_WHATSAPP = "5583981367568";
 
     const API_URL = '/api';
     const listaPresentesContainer = document.getElementById('lista-presentes');
@@ -12,9 +8,89 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.querySelector('.fechar-modal');
     const pixInfoContainer = document.getElementById('pix-info');
     
-    // LINHA CORRIGIDA:
-    const WHATSAPP_LINK_BASE = `https://wa.me/${MEU_NUMERO_WHATSAPP}?text=Oi!%20Acabei%20de%20dar%20um%20presente%20para%20os%20noivos%20Marianna%20e%20Renato!%20Segue%20o%20comprovante%20do:`;
+    // ... (funções carregarPresentes e criarCardDePresente continuam iguais) ...
+    async function carregarPresentes() {
+        //...
+    }
+    function criarCardDePresente(presente) {
+        //...
+    }
 
+    // --- FUNÇÃO ABRIRMODALPIX ATUALIZADA ---
+    async function abrirModalPix(presente) {
+        modal.style.display = 'block';
+        pixInfoContainer.innerHTML = `<h3>Gerando QR Code com o valor do presente...</h3><p>Aguarde um instante.</p>`;
+        
+        try {
+            // 1. Chama o backend para gerar o QR Code dinâmico
+            const response = await fetch(`${API_URL}/presentes/${presente.id}/gerar-pix`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('Não foi possível gerar o QR Code. Tente novamente.');
+            }
+            const data = await response.json(); // Recebe { qrCodeBase64, qrCodeText }
+
+            // 2. Mostra o QR Code e o botão de confirmação
+            pixInfoContainer.innerHTML = `
+                <h3>Obrigado pelo seu carinho!</h3>
+                <p>1. Escaneie o QR Code abaixo com o app do seu banco. O valor já está preenchido!</p>
+                
+                <div class="pix-manual-info">
+                    <img src="${data.qrCodeBase64}" alt="QR Code Pix com valor" style="max-width: 250px; margin: 15px auto; display: block;">
+                    <strong>Ou use o Pix Copia e Cola:</strong>
+                    <input type="text" value="${data.qrCodeText}" readonly id="pix-copia-cola">
+                    <button id="btn-copiar">Copiar Código</button>
+                </div>
+
+                <div class="aviso-importante">
+                    <p>2. Após pagar, clique no botão abaixo para confirmar seu presente!</p>
+                    <button id="btn-confirmar-pagamento">Já fiz o Pix! Confirmar Presente</button>
+                </div>
+            `;
+            
+            document.getElementById('btn-copiar').addEventListener('click', () => {
+                const input = document.getElementById('pix-copia-cola');
+                input.select();
+                document.execCommand('copy');
+                alert('Código Pix copiado!');
+            });
+
+            // 3. Lógica do botão de confirmação (continua a mesma)
+            document.getElementById('btn-confirmar-pagamento').addEventListener('click', () => confirmarPagamento(presente));
+
+        } catch (error) {
+            pixInfoContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
+        }
+    }
+
+    // Função separada para a lógica de confirmação
+    async function confirmarPagamento(presente) {
+        const btnConfirmar = document.getElementById('btn-confirmar-pagamento');
+        btnConfirmar.disabled = true;
+        btnConfirmar.textContent = 'Confirmando...';
+
+        try {
+            const response = await fetch(`${API_URL}/presentes/${presente.id}/confirmar`, { method: 'PATCH' });
+            if (!response.ok) { throw new Error('Não foi possível confirmar. Tente novamente.'); }
+            
+            alert('Muito obrigado pelo seu presente! Ele já foi atualizado na lista.');
+            location.reload(); // Recarrega a página
+
+        } catch (error) {
+            alert(error.message);
+            btnConfirmar.disabled = false;
+            btnConfirmar.textContent = 'Já fiz o Pix! Confirmar Presente';
+        }
+    }
+
+    function fecharModal() { modal.style.display = 'none'; }
+    carregarPresentes();
+    closeModalBtn.addEventListener('click', fecharModal);
+    window.addEventListener('click', (event) => { if (event.target == modal) { fecharModal(); } });
+
+    // Colando as funções que não mudaram para garantir que o código esteja completo
     async function carregarPresentes() {
         listaPresentesContainer.innerHTML = '<h2>Carregando presentes...</h2>';
         try {
@@ -26,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
             presentes.forEach(presente => { const card = criarCardDePresente(presente); listaPresentesContainer.appendChild(card); });
         } catch (error) { console.error("Erro:", error); listaPresentesContainer.innerHTML = `<h2 style="color: red;">${error.message}</h2>`; }
     }
-
     function criarCardDePresente(presente) {
         const cardClone = presenteTemplate.content.cloneNode(true);
         const cardElement = cardClone.firstElementChild;
@@ -40,73 +115,4 @@ document.addEventListener('DOMContentLoaded', () => {
         cardElement.querySelector('.btn-presentear').addEventListener('click', () => { abrirModalPix(presente); });
         return cardElement;
     }
-
-    function abrirModalPix(presente) {
-        modal.style.display = 'block';
-        const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(presente.valor);
-        
-        pixInfoContainer.innerHTML = `
-            <h3>Obrigado pelo seu carinho!</h3>
-            <p>1. Faça um Pix no valor de <strong>${valorFormatado}</strong> para a chave abaixo.</p>
-            
-            <div class="pix-manual-info">
-                <strong>Chave Pix (E-mail):</strong>
-                <input type="text" value="${MINHA_CHAVE_PIX}" readonly id="pix-copia-cola">
-                <button id="btn-copiar">Copiar Chave</button>
-                <p><small><strong>Nome:</strong> ${MEU_NOME_PIX}</small></p>
-            </div>
-
-            <div class="aviso-importante">
-                <p>2. Após pagar, clique no botão abaixo para confirmar seu presente e nos avisar!</p>
-                <button id="btn-confirmar-pagamento">Já fiz o Pix! Confirmar e Avisar</button>
-            </div>
-        `;
-        
-        document.getElementById('btn-copiar').addEventListener('click', () => {
-            const input = document.getElementById('pix-copia-cola');
-            input.select();
-            document.execCommand('copy');
-            alert('Chave Pix copiada!');
-        });
-
-        const btnConfirmar = document.getElementById('btn-confirmar-pagamento');
-        btnConfirmar.addEventListener('click', async () => {
-            btnConfirmar.disabled = true;
-            btnConfirmar.textContent = 'Confirmando...';
-
-            try {
-                const response = await fetch(`${API_URL}/presentes/${presente.id}/confirmar`, {
-                    method: 'PATCH',
-                });
-
-                if (!response.ok) {
-                    throw new Error('Não foi possível confirmar. Por favor, tente novamente.');
-                }
-
-                pixInfoContainer.innerHTML = `
-                    <div style="text-align: center;">
-                        <h2>Presente Confirmado! ✅</h2>
-                        <p>Muito obrigado pelo seu carinho! ❤️</p>
-                        <p>Você será redirecionado para o WhatsApp para nos enviar o comprovante em alguns segundos...</p>
-                    </div>
-                `;
-
-                const linkWhatsAppCompleto = `${WHATSAPP_LINK_BASE}%20*${presente.nome}*`;
-
-                setTimeout(() => {
-                    window.location.href = linkWhatsAppCompleto;
-                }, 3000);
-
-            } catch (error) {
-                alert(error.message);
-                btnConfirmar.disabled = false;
-                btnConfirmar.textContent = 'Já fiz o Pix! Confirmar e Avisar';
-            }
-        });
-    }
-
-    function fecharModal() { modal.style.display = 'none'; }
-    carregarPresentes();
-    closeModalBtn.addEventListener('click', fecharModal);
-    window.addEventListener('click', (event) => { if (event.target == modal) { fecharModal(); } });
 });
