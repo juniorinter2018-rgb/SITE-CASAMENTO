@@ -1,4 +1,4 @@
-// backend/server.js (Versão Final com Correção de Valor e Detetives)
+// backend/server.js (Versão Final com Correção da Cidade no Pix)
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
@@ -31,21 +31,15 @@ app.post('/api/presentes/:id/gerar-pix', async (req, res) => {
         }
         const presente = presenteResult.rows[0];
 
-        // --- NOSSOS DETETIVES E A CORREÇÃO ---
-        console.log("--> Iniciando geração de PIX para o presente:", presente.nome);
-        console.log("--> Valor vindo do banco (tipo):", typeof presente.valor, "| Valor:", presente.valor);
-        // A conversão usando parseFloat é mais robusta para números com casas decimais
         const valorNumerico = parseFloat(presente.valor);
-        console.log("--> Valor após conversão para Número (tipo):", typeof valorNumerico, "| Valor:", valorNumerico);
-        // ------------------------------------
 
         const pix = QrCodePix({
             version: '01',
             key: 'mariannavidal12345@gmail.com',
             name: 'Marianna Vidal da Silva',
-            city: 'JOAO PESSOA',
+            city: 'JOAOPESSOA', // <-- CORREÇÃO FINAL AQUI (sem espaço)
             transactionId: `casamento${id}${Date.now()}`,
-            amount: valorNumerico, // Usando a variável que garantimos ser um número
+            amount: valorNumerico,
         });
 
         const qrCodeBase64 = await pix.base64();
