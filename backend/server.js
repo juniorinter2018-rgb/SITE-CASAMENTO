@@ -1,4 +1,4 @@
-// backend/server.js (Plano do Link de Cobrança - Final)
+// backend/server.js (Plano Manual - Final e Definitivo)
 require('dotenv').config();
 const express = require('express');
 const path = require('path');

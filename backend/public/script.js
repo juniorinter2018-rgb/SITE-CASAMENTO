@@ -1,7 +1,9 @@
-// script.js (Plano do Link de Cobrança - Final e Definitivo)
+// script.js (Plano Manual - Final e Definitivo)
 document.addEventListener('DOMContentLoaded', () => {
 
     const MINHA_CHAVE_PIX = "mariannavidal12345@gmail.com";
+    const MEU_NOME_PIX = "Marianna Vidal da Silva - Nubank";
+    const MEU_NUMERO_WHATSAPP = "5583981367568";
     const API_URL = '/api';
 
     const listaPresentesContainer = document.getElementById('lista-presentes');
@@ -9,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('modal-pix');
     const closeModalBtn = document.querySelector('.fechar-modal');
     const pixInfoContainer = document.getElementById('pix-info');
+    
+    const WHATSAPP_LINK_BASE = `https://wa.me/${MEU_NUMERO_WHATSAPP}?text=Oi!%20Acabei%20de%20dar%20um%20presente%20para%20os%20noivos%20Marianna%20e%20Renato!%20Segue%20o%20comprovante%20do:`;
 
     async function carregarPresentes() {
         listaPresentesContainer.innerHTML = '<h2>Carregando presentes...</h2>';
@@ -51,30 +55,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function abrirModalPix(presente) {
         modal.style.display = 'block';
-        const valorNumerico = parseFloat(presente.valor);
-        const valorFormatadoParaLink = valorNumerico.toFixed(2);
-        const valorFormatadoParaDisplay = valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        
-        // Monta um link de cobrança do Nubank
-        const linkDeCobranca = `https://nubank.com.br/pagar/${MINHA_CHAVE_PIX}/${valorFormatadoParaLink}`;
+        const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(presente.valor);
 
         pixInfoContainer.innerHTML = `
             <h3>Obrigado pelo seu carinho! ❤️</h3>
-            <p>Para facilitar, preparamos um link de pagamento com o valor já preenchido.</p>
+            <p>1. Copie a chave abaixo e, no app do seu banco, faça um Pix no valor de <strong>${valorFormatado}</strong>.</p>
             
             <div class="pix-manual-info">
-                <a href="${linkDeCobranca}" target="_blank" class="link-pagamento-pix">
-                    Clique aqui para Pagar ${valorFormatadoParaDisplay} com Pix
-                </a>
-                <p style="font-size: 0.9rem; margin-top: 15px;">Você será direcionado para uma página segura para escanear o QR Code ou copiar o código.</p>
+                <strong>Chave Pix (E-mail):</strong>
+                <input type="text" value="${MINHA_CHAVE_PIX}" readonly id="pix-copia-cola">
+                <button id="btn-copiar">Copiar Chave</button>
+                <p><small><strong>Nome:</strong> ${MEU_NOME_PIX}</small></p>
             </div>
 
             <div class="aviso-importante">
-                <p>Após pagar, volte para esta página e clique no botão abaixo para confirmar seu presente!</p>
-                <button id="btn-confirmar-pagamento">Já paguei! Confirmar Presente</button>
+                <p>2. Após pagar, clique no botão abaixo para confirmar seu presente!</p>
+                <button id="btn-confirmar-pagamento">Já fiz o Pix! Confirmar Presente</button>
             </div>
         `;
         
+        document.getElementById('btn-copiar').addEventListener('click', () => {
+            const input = document.getElementById('pix-copia-cola');
+            input.select();
+            document.execCommand('copy');
+            alert('Chave Pix copiada!');
+        });
+
         document.getElementById('btn-confirmar-pagamento').addEventListener('click', () => confirmarPagamento(presente));
     }
 
@@ -88,14 +94,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_URL}/presentes/${presente.id}/confirmar`, { method: 'PATCH' });
             if (!response.ok) { throw new Error('Não foi possível confirmar. Tente novamente.'); }
             
-            alert('Muito obrigado pelo seu presente!');
-            location.reload();
+            pixInfoContainer.innerHTML = `
+                <div style="text-align: center;">
+                    <h2>Presente Confirmado! ✅</h2>
+                    <p>Muito obrigado pelo seu carinho!</p>
+                    <p>Você será redirecionado para o WhatsApp para nos enviar o comprovante em alguns segundos...</p>
+                </div>
+            `;
+            const linkWhatsAppCompleto = `${WHATSAPP_LINK_BASE}%20*${presente.nome}*`;
+            setTimeout(() => {
+                window.location.href = linkWhatsAppCompleto;
+            }, 3000);
 
         } catch (error) {
             alert(error.message);
             if (btnConfirmar) {
                 btnConfirmar.disabled = false;
-                btnConfirmar.textContent = 'Já paguei! Confirmar Presente';
+                btnConfirmar.textContent = 'Já fiz o Pix! Confirmar Presente';
             }
         }
     }
