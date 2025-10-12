@@ -1,4 +1,4 @@
-// backend/server.js (Versão Final com Correção da Cidade no Pix)
+// backend/server.js (Versão Final "Super Simplificada")
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
@@ -33,14 +33,18 @@ app.post('/api/presentes/:id/gerar-pix', async (req, res) => {
 
         const valorNumerico = parseFloat(presente.valor);
 
+        // --- VERSÃO SUPER SIMPLIFICADA PARA GARANTIR A FORMATAÇÃO ---
         const pix = QrCodePix({
             version: '01',
-            key: 'mariannavidal12345@gmail.com',
-            name: 'Marianna Vidal da Silva',
-            city: 'JOAOPESSOA', // <-- CORREÇÃO FINAL AQUI (sem espaço)
-            transactionId: `casamento${id}${Date.now()}`,
+            key: 'mariannavidal12345@gmail.com', // Sua chave Pix
+            name: 'Marianna V S', // Nome simplificado (até 25 caracteres)
+            city: 'JOAOPESSOA', // Cidade simplificada (até 15 caracteres)
+            transactionId: '***', // ID de transação padrão do Pix (essencial para alguns apps)
             amount: valorNumerico,
         });
+        // -----------------------------------------------------------
+
+        console.log("--> Payload do PIX gerado:", pix.payload()); // Novo detetive
 
         const qrCodeBase64 = await pix.base64();
         const qrCodeText = pix.payload();
@@ -56,6 +60,7 @@ app.post('/api/presentes/:id/gerar-pix', async (req, res) => {
     }
 });
 
+// ... (O resto do seu server.js continua igual e não precisa ser colado aqui de novo) ...
 app.patch('/api/presentes/:id/confirmar', async (req, res) => {
     try {
         const { id } = req.params;
