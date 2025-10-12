@@ -1,4 +1,4 @@
-// script.js (Plano C - Versão Final Corrigida)
+// script.js (Plano Definitivo - Completo e Sem Abreviações)
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURAÇÕES PESSOAIS ---
@@ -71,34 +71,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Abre o modal, monta o link para o gerador de QR Code externo e exibe as opções.
+     * Abre o modal, chama o backend para gerar o QR Code e exibe as opções.
      */
-    function abrirModalPix(presente) {
+    async function abrirModalPix(presente) {
         modal.style.display = 'block';
-
-        // Converte o valor (que pode ser texto) para um número antes de formatar
-        const valorNumerico = parseFloat(presente.valor);
-        const valorFormatado = valorNumerico.toFixed(2);
+        pixInfoContainer.innerHTML = `<h3>Gerando QR Code com o valor do presente...</h3><p>Aguarde um instante.</p>`;
         
-        const linkGeradorPix = `https://gerarpix.com.br/api/v1/qr-code/cob?valor=${valorFormatado}&chave=${MINHA_CHAVE_PIX}&nome=${encodeURIComponent(MEU_NOME_PIX)}&cidade=${MINHA_CIDADE_PIX}&saida=qr-code`;
-        const linkCopiaECola = `https://gerarpix.com.br/api/v1/qr-code/cob?valor=${valorFormatado}&chave=${MINHA_CHAVE_PIX}&nome=${encodeURIComponent(MEU_NOME_PIX)}&cidade=${MINHA_CIDADE_PIX}&saida=br-code`;
+        try {
+            const response = await fetch(`${API_URL}/presentes/${presente.id}/gerar-pix`, { method: 'POST' });
+            if (!response.ok) { throw new Error('Não foi possível gerar o QR Code. Tente novamente.'); }
+            const data = await response.json(); // Recebe { qrCodeImageUrl, qrCodeText }
 
-        pixInfoContainer.innerHTML = `
-            <h3>Obrigado pelo seu carinho! ❤️</h3>
-            <p>1. Escaneie o QR Code abaixo para pagar. O valor já está preenchido!</p>
+            pixInfoContainer.innerHTML = `
+                <h3>Obrigado pelo seu carinho! ❤️</h3>
+                <p>1. Escaneie o QR Code abaixo com o app do seu banco. O valor já está preenchido!</p>
+                
+                <div class="pix-manual-info">
+                    <img src="${data.qrCodeImageUrl}" alt="QR Code Pix com valor" style="max-width: 250px; margin: 15px auto; display: block; border: 5px solid white; border-radius: 10px;">
+                    <strong>Ou use o Pix Copia e Cola:</strong>
+                    <input type="text" value="${data.qrCodeText}" readonly id="pix-copia-cola">
+                    <button id="btn-copiar">Copiar Código</button>
+                </div>
+
+                <div class="aviso-importante">
+                    <p>2. Após pagar, clique no botão abaixo para confirmar seu presente!</p>
+                    <button id="btn-confirmar-pagamento">Já fiz o Pix! Confirmar Presente</button>
+                </div>
+            `;
             
-            <div class="pix-manual-info">
-                <img src="${linkGeradorPix}" alt="QR Code Pix" style="max-width: 250px; margin: 15px auto; display: block; border: 5px solid white; border-radius: 10px;">
-                <p style="font-size: 0.9rem;">Se preferir, <a href="${linkCopiaECola}" target="_blank">clique aqui para abrir o Pix Copia e Cola</a> em outra aba.</p>
-            </div>
+            document.getElementById('btn-copiar').addEventListener('click', () => {
+                const input = document.getElementById('pix-copia-cola');
+                input.select();
+                document.execCommand('copy');
+                alert('Código Pix copiado!');
+            });
 
-            <div class="aviso-importante">
-                <p>2. Após pagar, volte para esta página e clique no botão abaixo para confirmar seu presente!</p>
-                <button id="btn-confirmar-pagamento">Já fiz o Pix! Confirmar Presente</button>
-            </div>
-        `;
-        
-        document.getElementById('btn-confirmar-pagamento').addEventListener('click', () => confirmarPagamento(presente));
+            document.getElementById('btn-confirmar-pagamento').addEventListener('click', () => confirmarPagamento(presente));
+
+        } catch (error) {
+            console.error("Erro ao abrir modal:", error);
+            pixInfoContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
+        }
     }
 
     /**
@@ -118,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pixInfoContainer.innerHTML = `
                 <div style="text-align: center;">
                     <h2>Presente Confirmado! ✅</h2>
-                    <p>Muito obrigado pelo seu carinho!</p>
+                    <p>Muito obrigado pelo seu carinho! ❤️</p>
                     <p>Você será redirecionado para o WhatsApp para nos enviar o comprovante em alguns segundos...</p>
                 </div>
             `;
