@@ -1,7 +1,7 @@
-// script.js (Solução Saída - Final)
+// script.js (Versão Final Completa)
 document.addEventListener('DOMContentLoaded', () => {
     const API_URL = '/api';
-    let todosOsPresentes = []; 
+    let todosOsPresentes = [];
     const listaPresentesContainer = document.getElementById('lista-presentes');
     const presenteTemplate = document.getElementById('presente-template');
     const modal = document.getElementById('modal-pix');
@@ -10,6 +10,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const seletorOrdenacao = document.getElementById('ordenar-presentes');
     const WHATSAPP_LINK_BASE = `https://wa.me/5583981367568?text=Oi!%20Acabei%20de%20dar%20um%20presente%20para%20os%20noivos%20Marianna%20e%20Renato!%20Segue%20o%20comprovante%20do:`;
 
+    // Função para a Contagem Regressiva
+    function iniciarContagemRegressiva() {
+        const dataCasamento = new Date('2025-11-21T17:00:00').getTime(); // Data ajustada para 21 de Novembro
+        const elementoContagem = document.getElementById('contagem-regressiva');
+
+        if (!elementoContagem) return;
+
+        const atualizarContagem = () => {
+            const agora = new Date().getTime();
+            const diferenca = dataCasamento - agora;
+
+            if (diferenca < 0) {
+                elementoContagem.innerHTML = "O grande dia chegou!";
+                clearInterval(intervalo);
+                return;
+            }
+
+            const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+            const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
+
+            elementoContagem.innerHTML = `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+        };
+
+        const intervalo = setInterval(atualizarContagem, 1000);
+        atualizarContagem();
+    }
+
     async function carregarPresentes() {
         listaPresentesContainer.innerHTML = '<h2>Carregando presentes...</h2>';
         try {
@@ -17,12 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) { throw new Error('Não foi possível carregar os presentes.'); }
             todosOsPresentes = await response.json();
             renderizarPresentes(todosOsPresentes);
-        } catch (error) { 
-            console.error("Erro:", error); 
-            listaPresentesContainer.innerHTML = `<h2 style="color: red;">${error.message}</h2>`; 
+        } catch (error) {
+            console.error("Erro:", error);
+            listaPresentesContainer.innerHTML = `<h2 style="color: red;">${error.message}</h2>`;
         }
     }
-    
+
     function renderizarPresentes(lista) {
         listaPresentesContainer.innerHTML = '';
         if (lista.length === 0) { listaPresentesContainer.innerHTML = '<h2>Nenhum presente disponível.</h2>'; return; }
@@ -44,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function abrirModalPix(presente) {
         modal.style.display = 'block';
-        
+
         if (!presente.pix_copia_e_cola) {
             pixInfoContainer.innerHTML = `<p style="color: red;">Não foi possível gerar o Pix para este presente. Por favor, escolha outro.</p>`;
             return;
@@ -66,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button id="btn-confirmar-pagamento">Já fiz o Pix! Confirmar Presente</button>
             </div>
         `;
-        
+
         document.getElementById('btn-copiar').addEventListener('click', () => {
             const input = document.getElementById('pix-copia-cola');
             input.select();
@@ -83,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`${API_URL}/presentes/${presente.id}/confirmar`, { method: 'PATCH' });
             if (!response.ok) { throw new Error('Não foi possível confirmar.'); }
-            
+
             pixInfoContainer.innerHTML = `<div style="text-align: center;"><h2>Presente Confirmado! ✅</h2><p>Muito obrigado! ❤️</p><p>Você será redirecionado para o WhatsApp...</p></div>`;
             const linkWhats = `${WHATSAPP_LINK_BASE}%20*${presente.nome}*`;
             setTimeout(() => { window.location.href = linkWhats; }, 3000);
@@ -95,17 +124,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function fecharModal() { modal.style.display = 'none'; }
+
+    // Inicializações
+    iniciarContagemRegressiva();
     carregarPresentes();
+
+    // Event Listeners
     closeModalBtn.addEventListener('click', fecharModal);
     window.addEventListener('click', (event) => { if (event.target == modal) { fecharModal(); } });
     seletorOrdenacao.addEventListener('change', () => {
         const ordem = seletorOrdenacao.value;
-        let presentesOrdenados = [...todosOsPresentes]; 
-        if (ordem === 'menor-preco') { presentesOrdenados.sort((a, b) => parseFloat(a.valor) - parseFloat(b.valor)); } 
+        let presentesOrdenados = [...todosOsPresentes];
+        if (ordem === 'menor-preco') { presentesOrdenados.sort((a, b) => parseFloat(a.valor) - parseFloat(b.valor)); }
         else if (ordem === 'maior-preco') { presentesOrdenados.sort((a, b) => parseFloat(b.valor) - parseFloat(a.valor)); }
         renderizarPresentes(presentesOrdenados);
     });
-    
+
+    // Efeito Parallax
     const imagemHero = document.querySelector('.hero-imagem');
     window.addEventListener('scroll', () => {
         const scrollPos = window.scrollY;
