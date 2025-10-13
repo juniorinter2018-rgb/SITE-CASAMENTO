@@ -1,4 +1,4 @@
-/* Estilos Gerais Finais (Corrigido) */
+/* Estilos Gerais Finais (Modal Corrigido) */
 :root {
     --cor-principal-verde: #556B2F;
     --cor-acento-dourado: #B8860B;
@@ -73,7 +73,6 @@ h1, h2 {
     letter-spacing: 1px;
 }
 
-/* === NOVO ESTILO PARA O TÍTULO DA CONTAGEM === */
 .titulo-contagem {
     font-size: 1rem !important;
     font-weight: bold;
@@ -81,7 +80,6 @@ h1, h2 {
     margin: 25px 0 5px 0;
     opacity: 0.9;
 }
-/* ============================================ */
 
 #contagem-regressiva {
     margin-top: 5px;
@@ -209,25 +207,35 @@ h1, h2 {
     background-color: var(--cor-acento-dourado);
 }
 
+/* === ESTILO DO MODAL CORRIGIDO === */
 .modal {
     display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
     overflow: auto; background-color: rgba(0,0,0,0.6); animation: fadeIn 0.3s ease-in-out;
+    /* Adicionado para centrar o conteúdo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
 .modal-conteudo {
     background-color: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    margin: 10% auto;
+    margin: auto; /* Alterado para centralizar automaticamente */
     padding: 20px 30px;
     border-radius: 16px;
-    max-width: 500px;
+    max-width: 450px; /* Reduzido para ficar mais compacto */
     width: 90%;
     position: relative;
     text-align: center;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     box-sizing: border-box;
+    /* Para garantir que não fique escondido em telas pequenas */
+    max-height: 90vh;
+    overflow-y: auto;
 }
+/* ================================== */
 
 .fechar-modal {
     color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer;
