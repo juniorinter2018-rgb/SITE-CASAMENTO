@@ -1,4 +1,4 @@
-// script.js (Versão Final Completa com Ordenação)
+// script.js (Versão Final com Tilt e Spinner)
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURAÇÕES PESSOAIS ---
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_URL = '/api';
     
     // --- VARIÁVEL PARA GUARDAR OS DADOS ---
-    let todosOsPresentes = []; // Guarda a lista original de presentes
+    let todosOsPresentes = [];
 
     // --- MAPEAMENTO DOS ELEMENTOS DA PÁGINA ---
     const listaPresentesContainer = document.getElementById('lista-presentes');
@@ -18,27 +18,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('modal-pix');
     const closeModalBtn = document.querySelector('.fechar-modal');
     const pixInfoContainer = document.getElementById('pix-info');
-    const seletorOrdenacao = document.getElementById('ordenar-presentes'); // Seletor do menu
+    const seletorOrdenacao = document.getElementById('ordenar-presentes');
     
     // --- GERAÇÃO DO LINK WHATSAPP ---
     const WHATSAPP_LINK_BASE = `https://wa.me/${MEU_NUMERO_WHATSAPP}?text=Oi!%20Acabei%20de%20dar%20um%20presente%20para%20os%20noivos%20Marianna%20e%20Renato!%20Segue%20o%20comprovante%20do:`;
-
 
     // ===================================
     // FUNÇÕES PRINCIPAIS
     // ===================================
 
-    /**
-     * Busca os presentes da API, guarda na variável global e renderiza na tela.
-     */
     async function carregarPresentes() {
-        listaPresentesContainer.innerHTML = '<h2>Carregando presentes...</h2>';
+        // Mostra o spinner de carregamento
+        listaPresentesContainer.innerHTML = '<div class="loader"></div>';
         try {
             const response = await fetch(`${API_URL}/presentes`);
             if (!response.ok) { throw new Error('Não foi possível carregar os presentes. Aguarde um instante...'); }
             
-            todosOsPresentes = await response.json(); // Guarda os dados na variável
-            renderizarPresentes(todosOsPresentes); // Renderiza a lista padrão
+            todosOsPresentes = await response.json();
+            renderizarPresentes(todosOsPresentes);
             
         } catch (error) { 
             console.error("Erro ao carregar presentes:", error); 
@@ -46,24 +43,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    /**
-     * Desenha a lista de presentes na tela a partir de um array.
-     */
     function renderizarPresentes(listaParaRenderizar) {
-        listaPresentesContainer.innerHTML = ''; 
+        listaPresentesContainer.innerHTML = '';
         if (listaParaRenderizar.length === 0) { 
             listaPresentesContainer.innerHTML = '<h2>Nenhum presente disponível no momento.</h2>'; 
             return; 
         }
         listaParaRenderizar.forEach(presente => { 
             const card = criarCardDePresente(presente); 
-            listaPresentesContainer.appendChild(card); 
+            listaPresentesContainer.appendChild(card);
+            // Ativa o efeito Tilt no card recém-criado
+            VanillaTilt.init(card, { max: 15, speed: 400, glare: true, "max-glare": 0.5 });
         });
     }
 
-    /**
-     * Cria o elemento HTML (card) para um presente.
-     */
     function criarCardDePresente(presente) {
         const cardClone = presenteTemplate.content.cloneNode(true);
         const cardElement = cardClone.firstElementChild;
@@ -82,9 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return cardElement;
     }
 
-    /**
-     * Abre o modal com o link de pagamento do Nubank.
-     */
     function abrirModalPix(presente) {
         modal.style.display = 'block';
         const valorNumerico = parseFloat(presente.valor);
@@ -111,14 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-confirmar-pagamento').addEventListener('click', () => confirmarPagamento(presente));
     }
 
-    /**
-     * Confirma o pagamento no backend e redireciona para o WhatsApp.
-     */
     async function confirmarPagamento(presente) {
         const btnConfirmar = document.getElementById('btn-confirmar-pagamento');
-        if (btnConfirmar) {
-            btnConfirmar.disabled = true;
-            btnConfirmar.textContent = 'Confirmando...';
+        if (btnConfirmar) { 
+            btnConfirmar.disabled = true; 
+            btnConfirmar.textContent = 'Confirmando...'; 
         }
         try {
             const response = await fetch(`${API_URL}/presentes/${presente.id}/confirmar`, { method: 'PATCH' });
@@ -129,29 +116,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2>Presente Confirmado! ✅</h2>
                     <p>Muito obrigado pelo seu carinho! ❤️</p>
                     <p>Você será redirecionado para o WhatsApp para nos enviar o comprovante em alguns segundos...</p>
-                </div>
-            `;
+                </div>`;
             const linkWhatsAppCompleto = `${WHATSAPP_LINK_BASE}%20*${presente.nome}*`;
-            setTimeout(() => {
-                window.location.href = linkWhatsAppCompleto;
+            setTimeout(() => { 
+                window.location.href = linkWhatsAppCompleto; 
             }, 3000);
-
         } catch (error) {
             alert(error.message);
-            if (btnConfirmar) {
-                btnConfirmar.disabled = false;
-                btnConfirmar.textContent = 'Já paguei! Confirmar Presente';
+            if (btnConfirmar) { 
+                btnConfirmar.disabled = false; 
+                btnConfirmar.textContent = 'Já paguei! Confirmar Presente'; 
             }
         }
     }
 
-    /**
-     * Fecha o modal.
-     */
     function fecharModal() {
         modal.style.display = 'none';
     }
-
 
     // ===================================
     // INICIALIZAÇÃO E EVENTOS
@@ -166,25 +147,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // === LÓGICA DE ORDENAÇÃO ===
     seletorOrdenacao.addEventListener('change', () => {
         const ordem = seletorOrdenacao.value;
-        let presentesOrdenados = [...todosOsPresentes]; // Cria uma cópia para não alterar a original
-
+        let presentesOrdenados = [...todosOsPresentes]; 
         if (ordem === 'menor-preco') {
-            // Ordena do valor mais baixo para o mais alto
             presentesOrdenados.sort((a, b) => parseFloat(a.valor) - parseFloat(b.valor));
         } else if (ordem === 'maior-preco') {
-            // Ordena do valor mais alto para o mais baixo
             presentesOrdenados.sort((a, b) => parseFloat(b.valor) - parseFloat(a.valor));
         }
-        // Se for 'padrao', usa a cópia da lista original, que já está na ordem do banco
-        
         renderizarPresentes(presentesOrdenados);
     });
-    // =============================
     
-    // Efeito Parallax
     const imagemHero = document.querySelector('.hero-imagem');
     window.addEventListener('scroll', () => {
         const scrollPos = window.scrollY;
@@ -192,5 +165,4 @@ document.addEventListener('DOMContentLoaded', () => {
             imagemHero.style.transform = `translateY(${scrollPos * 0.3}px)`;
         }
     });
-
 });

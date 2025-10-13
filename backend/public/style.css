@@ -1,4 +1,4 @@
-/* Estilos Gerais Finais com Parallax e Alinhamento Corrigido */
+/* Estilos Gerais Finais */
 :root {
     --cor-principal-verde: #556B2F;
     --cor-acento-dourado: #B8860B;
@@ -22,7 +22,7 @@ h1, h2 {
     font-weight: 700;
 }
 
-/* === ESTILOS PARA O HEADER COM PARALLAX (CENTRALIZADO) === */
+/* ESTILOS PARA O HEADER COM PARALLAX (CENTRALIZADO) */
 .hero-container {
     position: relative;
     height: 70vh;
@@ -72,9 +72,8 @@ h1, h2 {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-/* ======================================================= */
 
-/* === SEÇÃO DE ORDENAÇÃO (ALINHADA À ESQUERDA) === */
+/* SEÇÃO DE ORDENAÇÃO (ALINHADA À ESQUERDA) */
 .filtros-container {
     text-align: left;
     padding: 20px 40px;
@@ -100,7 +99,6 @@ h1, h2 {
     font-size: 1rem;
     cursor: pointer;
 }
-/* ============================================== */
 
 .container-presentes {
     display: grid;
@@ -109,6 +107,8 @@ h1, h2 {
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
+    /* Adicionado para o efeito Tilt */
+    transform-style: preserve-3d; 
 }
 
 .presente-card {
@@ -119,9 +119,11 @@ h1, h2 {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transition: box-shadow 0.3s ease-in-out;
     opacity: 0;
     animation: floatUp 0.6s ease-out forwards;
+    /* Adicionado para o efeito Tilt */
+    transform: perspective(1000px); 
 }
 
 .presente-card:nth-child(1) { animation-delay: 0.1s; }
@@ -133,10 +135,8 @@ h1, h2 {
 .presente-card:nth-child(7) { animation-delay: 0.7s; }
 .presente-card:nth-child(8) { animation-delay: 0.8s; }
 
-.presente-card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 25px 45px rgba(0,0,0,0.18);
-}
+/* Removemos o hover do card para deixar o Tilt controlar o movimento */
+/* .presente-card:hover { ... } */
 
 .presente-img {
     width: 100%;
@@ -261,14 +261,26 @@ footer {
 @media (max-width: 600px) {
     .hero-texto h1 { font-size: 2.5rem; }
     .hero-texto p { font-size: 1rem; }
-    .container-presentes {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-        padding: 15px;
-    }
+    .container-presentes { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
     .presente-img { height: 120px; }
     .card-body { padding: 10px; }
     .presente-nome { font-size: 1.1rem; }
     .presente-preco { font-size: 1.1rem; }
     .btn-presentear { padding: 12px; font-size: 0.9rem; }
 }
+
+/* === ESTILOS PARA O LOADING SPINNER === */
+.loader {
+    border: 5px solid #f3f3f3; /* Cinza claro */
+    border-top: 5px solid var(--cor-principal-verde); /* Verde Oliva */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 50px auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* ==================================== */
