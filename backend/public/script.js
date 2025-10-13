@@ -1,4 +1,4 @@
-// script.js (Versão Final Completa)
+// script.js (Textos do Modal otimizados)
 document.addEventListener('DOMContentLoaded', () => {
     const API_URL = '/api';
     let todosOsPresentes = [];
@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_URL}/presentes`);
             if (!response.ok) { throw new Error('Não foi possível carregar os presentes.'); }
             todosOsPresentes = await response.json();
+            todosOsPresentes.sort((a, b) => a.id - b.id);
             renderizarPresentes(todosOsPresentes);
         } catch (error) {
             console.error("Erro:", error);
@@ -67,13 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function abrirModalPix(presente) {
         modal.style.display = 'flex';
         if (!presente.pix_copia_e_cola) {
-            pixInfoContainer.innerHTML = `<p style="color: red;">Não foi possível gerar o Pix para este presente. Por favor, escolha outro.</p>`;
+            pixInfoContainer.innerHTML = `<p style="color: red;">Pix indisponível. Por favor, escolha outro presente.</p>`;
             return;
         }
         const qrCodeImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(presente.pix_copia_e_cola)}`;
+        
+        // <<<<<<<<<<<<<<<<<<<< TEXTOS OTIMIZADOS AQUI <<<<<<<<<<<<<<<<<<<<
         pixInfoContainer.innerHTML = `
             <h3>Obrigado pelo seu carinho! ❤️</h3>
-            <p>1. Escaneie o QR Code abaixo com o app do seu banco. O valor já está preenchido!</p>
+            <p>1. Escaneie o QR Code abaixo com o seu banco.</p>
             <div class="pix-manual-info">
                 <img src="${qrCodeImageUrl}" alt="QR Code Pix">
                 <strong>Ou use o Pix Copia e Cola:</strong>
@@ -81,8 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button id="btn-copiar">Copiar Código</button>
             </div>
             <div class="aviso-importante">
-                <p>2. Após pagar, clique no botão abaixo para confirmar seu presente!</p>
-                <button id="btn-confirmar-pagamento">Já fiz o Pix! Confirmar Presente</button>
+                <p>2. Após pagar, confirme o presente abaixo!</p>
+                <button id="btn-confirmar-pagamento">Já paguei! Confirmar</button>
             </div>
         `;
 
@@ -91,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const input = document.getElementById('pix-copia-cola');
             input.select();
             input.setSelectionRange(0, 99999);
-            
             navigator.clipboard.writeText(input.value).then(() => {
                 btnCopiar.textContent = 'Copiado! ✓';
                 btnCopiar.classList.add('copiado');
@@ -112,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('btn-confirmar-pagamento').addEventListener('click', () => confirmarPagamento(presente));
     }
-
+    
     function criarAnimacaoCoracoes() {
         const container = document.createElement('div');
         container.className = 'hearts-container';
@@ -132,19 +134,36 @@ document.addEventListener('DOMContentLoaded', () => {
     async function confirmarPagamento(presente) {
         const btn = document.getElementById('btn-confirmar-pagamento');
         if (btn) { btn.disabled = true; btn.textContent = 'Confirmando...'; }
+        
         try {
             const response = await fetch(`${API_URL}/presentes/${presente.id}/confirmar`, { method: 'PATCH' });
-            if (!response.ok) { throw new Error('Não foi possível confirmar.'); }
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Não foi possível confirmar o presente.');
+            }
             
             criarAnimacaoCoracoes();
-            pixInfoContainer.innerHTML = `<div style="text-align: center; z-index: 10; position: relative;"><h2>Presente Confirmado! ✅</h2><p>Muito obrigado! ❤️</p><p>Você será redirecionado para o WhatsApp...</p></div>`;
+            pixInfoContainer.innerHTML = `<div style="text-align: center; z-index: 10; position: relative;"><h2>Presente Confirmado! ✅</h2><p>Muito obrigado! ❤️</p><p>Você será redirecionado...</p></div>`;
             
+            const presenteIndex = todosOsPresentes.findIndex(p => p.id === presente.id);
+            if (presenteIndex !== -1) {
+                if (data.presente.status === 'pago') {
+                    todosOsPresentes.splice(presenteIndex, 1);
+                } else {
+                    todosOsPresentes[presenteIndex] = data.presente;
+                }
+            }
+            renderizarPresentes(todosOsPresentes);
+
             const linkWhats = `${WHATSAPP_LINK_BASE}%20*${presente.nome}*`;
-            setTimeout(() => { window.location.href = linkWhats; }, 4000);
+            setTimeout(() => {
+                fecharModal(); 
+            }, 4000);
 
         } catch (error) {
             alert(error.message);
-            if (btn) { btn.disabled = false; btn.textContent = 'Já fiz o Pix!'; }
+            if (btn) { btn.disabled = false; btn.textContent = 'Já paguei! Confirmar'; }
         }
     }
 
@@ -158,8 +177,13 @@ document.addEventListener('DOMContentLoaded', () => {
     seletorOrdenacao.addEventListener('change', () => {
         const ordem = seletorOrdenacao.value;
         let presentesOrdenados = [...todosOsPresentes];
-        if (ordem === 'menor-preco') { presentesOrdenados.sort((a, b) => parseFloat(a.valor) - parseFloat(b.valor)); }
-        else if (ordem === 'maior-preco') { presentesOrdenados.sort((a, b) => parseFloat(b.valor) - parseFloat(a.valor)); }
+        if (ordem === 'padrao') {
+            presentesOrdenados.sort((a, b) => a.id - b.id);
+        } else if (ordem === 'menor-preco') { 
+            presentesOrdenados.sort((a, b) => parseFloat(a.valor) - parseFloat(b.valor)); 
+        } else if (ordem === 'maior-preco') { 
+            presentesOrdenados.sort((a, b) => parseFloat(b.valor) - parseFloat(a.valor)); 
+        }
         renderizarPresentes(presentesOrdenados);
     });
 
