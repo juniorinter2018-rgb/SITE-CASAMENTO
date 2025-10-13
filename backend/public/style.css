@@ -22,10 +22,11 @@ h1, h2 {
     font-weight: 700;
 }
 
+/* === CABEÇALHO COM CONTEÚDO CENTRALIZADO === */
 header {
     background-color: var(--cor-principal-verde);
     color: var(--cor-texto-claro);
-    text-align: center;
+    text-align: center; /* Esta linha centraliza tudo dentro do header (foto e textos) */
     padding: 2rem 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -49,16 +50,17 @@ header p {
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     margin-bottom: 1rem;
 }
+/* ============================================ */
 
-/* === ESTILOS ATUALIZADOS PARA A SEÇÃO DE ORDENAÇÃO === */
+/* === SEÇÃO DE ORDENAÇÃO COM TEXTO À ESQUERDA === */
 .filtros-container {
-    text-align: left; /* Alinha o conteúdo à esquerda */
-    padding: 20px 40px; /* Adiciona um espaçamento nas laterais */
+    text-align: left; /* Esta linha alinha o "Ordenar por" à esquerda */
+    padding: 20px 40px;
     background-color: #fff;
     border-bottom: 1px solid #eee;
-    max-width: 1200px; /* Garante o mesmo alinhamento dos cards */
-    margin: 0 auto; /* Centraliza o container na página */
-    box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+    max-width: 1200px; /* Faz a barra ter a mesma largura da lista de presentes */
+    margin: 0 auto; /* Centraliza a barra na página */
+    box-sizing: border-box;
 }
 
 .filtros-container label {
@@ -76,7 +78,7 @@ header p {
     font-size: 1rem;
     cursor: pointer;
 }
-/* ======================================================= */
+/* ============================================== */
 
 .container-presentes {
     display: grid;
