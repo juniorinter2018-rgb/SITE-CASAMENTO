@@ -73,6 +73,21 @@ h1, h2 {
     letter-spacing: 1px;
 }
 
+/* === NOVO ESTILO PARA A CONTAGEM REGRESSIVA === */
+#contagem-regressiva {
+    margin-top: 25px;
+    background-color: rgba(0, 0, 0, 0.4); /* Fundo semi-transparente */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px 25px;
+    display: inline-block;
+    font-size: 1.6rem;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 500;
+    letter-spacing: 2px;
+}
+/* ============================================== */
+
 /* SEÇÃO DE ORDENAÇÃO (ALINHADA À ESQUERDA) */
 .filtros-container {
     text-align: left;
@@ -107,8 +122,6 @@ h1, h2 {
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
-    /* Adicionado para o efeito Tilt */
-    transform-style: preserve-3d; 
 }
 
 .presente-card {
@@ -119,11 +132,9 @@ h1, h2 {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: box-shadow 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     opacity: 0;
     animation: floatUp 0.6s ease-out forwards;
-    /* Adicionado para o efeito Tilt */
-    transform: perspective(1000px); 
 }
 
 .presente-card:nth-child(1) { animation-delay: 0.1s; }
@@ -135,8 +146,10 @@ h1, h2 {
 .presente-card:nth-child(7) { animation-delay: 0.7s; }
 .presente-card:nth-child(8) { animation-delay: 0.8s; }
 
-/* Removemos o hover do card para deixar o Tilt controlar o movimento */
-/* .presente-card:hover { ... } */
+.presente-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 25px 45px rgba(0,0,0,0.18);
+}
 
 .presente-img {
     width: 100%;
@@ -261,26 +274,15 @@ footer {
 @media (max-width: 600px) {
     .hero-texto h1 { font-size: 2.5rem; }
     .hero-texto p { font-size: 1rem; }
-    .container-presentes { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
+    #contagem-regressiva { font-size: 1.2rem; padding: 8px 15px;}
+    .container-presentes {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 15px;
+    }
     .presente-img { height: 120px; }
     .card-body { padding: 10px; }
     .presente-nome { font-size: 1.1rem; }
     .presente-preco { font-size: 1.1rem; }
     .btn-presentear { padding: 12px; font-size: 0.9rem; }
 }
-
-/* === ESTILOS PARA O LOADING SPINNER === */
-.loader {
-    border: 5px solid #f3f3f3; /* Cinza claro */
-    border-top: 5px solid var(--cor-principal-verde); /* Verde Oliva */
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
-    margin: 50px auto;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-/* ==================================== */
