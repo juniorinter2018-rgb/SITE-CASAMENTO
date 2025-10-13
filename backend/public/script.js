@@ -1,40 +1,69 @@
-// script.js (Plano Manual - Final e Definitivo)
+// script.js (Versão Final com Ordenação por Preço)
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- CONFIGURAÇÕES PESSOAIS ---
     const MINHA_CHAVE_PIX = "mariannavidal12345@gmail.com";
     const MEU_NOME_PIX = "Marianna Vidal da Silva - Nubank";
     const MEU_NUMERO_WHATSAPP = "5583981367568";
-    const API_URL = '/api';
 
+    // --- CONFIGURAÇÕES DO SITE ---
+    const API_URL = '/api';
+    
+    // --- VARIÁVEL PARA GUARDAR OS DADOS ---
+    let todosOsPresentes = []; // Guarda a lista original de presentes
+
+    // --- MAPEAMENTO DOS ELEMENTOS DA PÁGINA ---
     const listaPresentesContainer = document.getElementById('lista-presentes');
     const presenteTemplate = document.getElementById('presente-template');
     const modal = document.getElementById('modal-pix');
     const closeModalBtn = document.querySelector('.fechar-modal');
     const pixInfoContainer = document.getElementById('pix-info');
-    
+    const seletorOrdenacao = document.getElementById('ordenar-presentes'); // Novo seletor
+
+    // --- GERAÇÃO DO LINK WHATSAPP ---
     const WHATSAPP_LINK_BASE = `https://wa.me/${MEU_NUMERO_WHATSAPP}?text=Oi!%20Acabei%20de%20dar%20um%20presente%20para%20os%20noivos%20Marianna%20e%20Renato!%20Segue%20o%20comprovante%20do:`;
 
+    // ===================================
+    // FUNÇÕES PRINCIPAIS
+    // ===================================
+
+    /**
+     * Busca os presentes da API, guarda na variável global e renderiza na tela.
+     */
     async function carregarPresentes() {
         listaPresentesContainer.innerHTML = '<h2>Carregando presentes...</h2>';
         try {
             const response = await fetch(`${API_URL}/presentes`);
             if (!response.ok) { throw new Error('Não foi possível carregar os presentes. Aguarde um instante...'); }
-            const presentes = await response.json();
-            listaPresentesContainer.innerHTML = '';
-            if (presentes.length === 0) {
-                listaPresentesContainer.innerHTML = '<h2>Nenhum presente disponível no momento.</h2>';
-                return;
-            }
-            presentes.forEach(presente => {
-                const card = criarCardDePresente(presente);
-                listaPresentesContainer.appendChild(card);
-            });
-        } catch (error) {
-            console.error("Erro ao carregar presentes:", error);
-            listaPresentesContainer.innerHTML = `<h2 style="color: red;">${error.message}</h2>`;
+            
+            todosOsPresentes = await response.json(); // Guarda os dados
+            renderizarPresentes(todosOsPresentes); // Renderiza a lista padrão
+            
+        } catch (error) { 
+            console.error("Erro ao carregar presentes:", error); 
+            listaPresentesContainer.innerHTML = `<h2 style="color: red;">${error.message}</h2>`; 
         }
     }
+    
+    /**
+     * Nova função que desenha a lista de presentes na tela.
+     * @param {Array} listaParaRenderizar A lista de presentes a ser exibida.
+     */
+    function renderizarPresentes(listaParaRenderizar) {
+        listaPresentesContainer.innerHTML = ''; // Limpa a área
+        if (listaParaRenderizar.length === 0) { 
+            listaPresentesContainer.innerHTML = '<h2>Nenhum presente disponível no momento.</h2>'; 
+            return; 
+        }
+        listaParaRenderizar.forEach(presente => { 
+            const card = criarCardDePresente(presente); 
+            listaPresentesContainer.appendChild(card); 
+        });
+    }
 
+    /**
+     * Cria o elemento HTML (card) para um presente.
+     */
     function criarCardDePresente(presente) {
         const cardClone = presenteTemplate.content.cloneNode(true);
         const cardElement = cardClone.firstElementChild;
@@ -44,46 +73,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const precoFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(presente.valor);
         cardElement.querySelector('.presente-preco').textContent = precoFormatado;
         const cotasElement = cardElement.querySelector('.presente-cotas');
-        if (presente.cotas_total > 1) {
-            cotasElement.textContent = `Disponível ${presente.cotas_disponiveis} de ${presente.cotas_total} cotas`;
-        } else {
-            cotasElement.style.display = 'none';
+        if (presente.cotas_total > 1) { 
+            cotasElement.textContent = `Disponível ${presente.cotas_disponiveis} de ${presente.cotas_total} cotas`; 
+        } else { 
+            cotasElement.style.display = 'none'; 
         }
         cardElement.querySelector('.btn-presentear').addEventListener('click', () => { abrirModalPix(presente); });
         return cardElement;
     }
 
+    /**
+     * Abre o modal com o link de pagamento.
+     */
     function abrirModalPix(presente) {
         modal.style.display = 'block';
-        const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(presente.valor);
+        const valorNumerico = parseFloat(presente.valor);
+        const valorFormatadoParaLink = valorNumerico.toFixed(2);
+        const valorFormatadoParaDisplay = valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        const linkDeCobranca = `https://nubank.com.br/pagar/${MINHA_CHAVE_PIX}/${valorFormatadoParaLink}`;
 
         pixInfoContainer.innerHTML = `
             <h3>Obrigado pelo seu carinho! ❤️</h3>
-            <p>1. Copie a chave abaixo e, no app do seu banco, faça um Pix no valor de <strong>${valorFormatado}</strong>.</p>
-            
+            <p>Para facilitar, preparamos um link de pagamento com o valor já preenchido.</p>
             <div class="pix-manual-info">
-                <strong>Chave Pix (E-mail):</strong>
-                <input type="text" value="${MINHA_CHAVE_PIX}" readonly id="pix-copia-cola">
-                <button id="btn-copiar">Copiar Chave</button>
-                <p><small><strong>Nome:</strong> ${MEU_NOME_PIX}</small></p>
+                <a href="${linkDeCobranca}" target="_blank" class="link-pagamento-pix">
+                    Clique aqui para Pagar ${valorFormatadoParaDisplay} com Pix
+                </a>
+                <p style="font-size: 0.9rem; margin-top: 15px;">Você será direcionado para uma página segura para escanear o QR Code ou copiar o código.</p>
             </div>
-
             <div class="aviso-importante">
-                <p>2. Após pagar, clique no botão abaixo para confirmar seu presente!</p>
-                <button id="btn-confirmar-pagamento">Já fiz o Pix! Confirmar Presente</button>
+                <p>Após pagar, volte para esta página e clique no botão abaixo para confirmar seu presente!</p>
+                <button id="btn-confirmar-pagamento">Já paguei! Confirmar Presente</button>
             </div>
         `;
         
-        document.getElementById('btn-copiar').addEventListener('click', () => {
-            const input = document.getElementById('pix-copia-cola');
-            input.select();
-            document.execCommand('copy');
-            alert('Chave Pix copiada!');
-        });
-
         document.getElementById('btn-confirmar-pagamento').addEventListener('click', () => confirmarPagamento(presente));
     }
 
+    /**
+     * Confirma o pagamento e redireciona.
+     */
     async function confirmarPagamento(presente) {
         const btnConfirmar = document.getElementById('btn-confirmar-pagamento');
         if (btnConfirmar) {
@@ -97,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pixInfoContainer.innerHTML = `
                 <div style="text-align: center;">
                     <h2>Presente Confirmado! ✅</h2>
-                    <p>Muito obrigado pelo seu carinho!</p>
+                    <p>Muito obrigado pelo seu carinho! ❤️</p>
                     <p>Você será redirecionado para o WhatsApp para nos enviar o comprovante em alguns segundos...</p>
                 </div>
             `;
@@ -110,20 +140,48 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(error.message);
             if (btnConfirmar) {
                 btnConfirmar.disabled = false;
-                btnConfirmar.textContent = 'Já fiz o Pix! Confirmar Presente';
+                btnConfirmar.textContent = 'Já paguei! Confirmar Presente';
             }
         }
     }
 
+    /**
+     * Fecha o modal.
+     */
     function fecharModal() {
         modal.style.display = 'none';
     }
 
+
+    // ===================================
+    // INICIALIZAÇÃO E EVENTOS
+    // ===================================
+
+    // Inicia carregando os presentes
     carregarPresentes();
+
+    // Evento para fechar o modal
     closeModalBtn.addEventListener('click', fecharModal);
     window.addEventListener('click', (event) => {
         if (event.target == modal) {
             fecharModal();
         }
     });
+
+    // === NOVO EVENTO PARA ORDENAÇÃO ===
+    seletorOrdenacao.addEventListener('change', () => {
+        const ordem = seletorOrdenacao.value;
+        let presentesOrdenados = [...todosOsPresentes]; // Cria uma cópia para não alterar a original
+
+        if (ordem === 'menor-preco') {
+            presentesOrdenados.sort((a, b) => parseFloat(a.valor) - parseFloat(b.valor));
+        } else if (ordem === 'maior-preco') {
+            presentesOrdenados.sort((a, b) => parseFloat(b.valor) - parseFloat(a.valor));
+        }
+        // Se for 'padrao', não faz nada, usa a cópia da lista original
+        
+        renderizarPresentes(presentesOrdenados);
+    });
+    // ====================================
+
 });

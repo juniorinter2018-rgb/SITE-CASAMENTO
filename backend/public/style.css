@@ -50,8 +50,32 @@ header p {
     margin-bottom: 1rem;
 }
 
+.filtros-container {
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.filtros-container label {
+    font-weight: 500;
+    margin-right: 10px;
+    color: #555;
+}
+
+#ordenar-presentes {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
 .container-presentes {
     display: grid;
+    /* Por padrão (PC), ele cria quantas colunas de 280px couberem */
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     padding: 20px;
@@ -150,7 +174,7 @@ header p {
     margin: 10% auto;
     padding: 20px 30px;
     border-radius: 16px;
-    max-width: 450px;
+    max-width: 90%; /* Ajuste para telas pequenas */
     position: relative;
     text-align: center;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
@@ -161,10 +185,8 @@ header p {
 }
 
 .pix-manual-info {
-    border: 1px dashed #ccc;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
+    border: 1px dashed #ccc; border-radius: 8px;
+    padding: 20px; margin: 20px 0;
 }
 .pix-manual-info strong { display: block; margin-bottom: 5px; }
 .pix-manual-info input { font-weight: bold; width: 90%; text-align: center; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
@@ -177,24 +199,14 @@ header p {
 }
 .aviso-importante a { color: #8a6d3b; font-weight: bold; text-decoration: underline; }
 
-/* Estilo para o novo botão de link de pagamento */
 .link-pagamento-pix {
-    display: inline-block;
-    padding: 15px 25px;
-    background-color: #8A2BE2; /* Roxo do Nubank */
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    transition: transform 0.2s, background-color 0.2s;
-    margin-top: 10px;
+    display: inline-block; padding: 15px 25px; background-color: #8A2BE2;
+    color: white; text-decoration: none; font-weight: bold;
+    border-radius: 8px; font-size: 1.1rem; transition: transform 0.2s, background-color 0.2s; margin-top: 10px;
 }
 .link-pagamento-pix:hover {
-    transform: scale(1.05);
-    background-color: #7925c4;
+    transform: scale(1.05); background-color: #7925c4;
 }
-
 
 footer {
     text-align: center; padding: 2rem; margin-top: 3rem;
@@ -208,4 +220,39 @@ footer {
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+/* ======================================================= */
+/* === REGRAS ESPECIAIS PARA CELULAR (TELAS PEQUENAS) === */
+/* ======================================================= */
+@media (max-width: 600px) {
+
+    /* Força a grade a ter sempre 2 colunas */
+    .container-presentes {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px; /* Diminui o espaçamento entre os cards */
+        padding: 15px;
+    }
+
+    /* Ajusta o tamanho da imagem e das fontes nos cards */
+    .presente-img {
+        height: 120px;
+    }
+
+    .card-body {
+        padding: 10px;
+    }
+
+    .presente-nome {
+        font-size: 1.1rem; /* Diminui a fonte do nome */
+    }
+
+    .presente-preco {
+        font-size: 1.1rem; /* Diminui a fonte do preço */
+    }
+
+    .btn-presentear {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
 }
