@@ -1,4 +1,4 @@
-/* Estilos Gerais Finais */
+/* Estilos Gerais Finais com Parallax */
 :root {
     --cor-principal-verde: #556B2F;
     --cor-acento-dourado: #B8860B;
@@ -22,33 +22,57 @@ h1, h2 {
     font-weight: 700;
 }
 
-header {
-    background-color: var(--cor-principal-verde);
-    color: var(--cor-texto-claro);
+/* === ESTILOS PARA O HEADER COM PARALLAX === */
+.hero-container {
+    position: relative;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     text-align: center;
-    padding: 2rem 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: white;
 }
 
-header h1 {
+.hero-imagem {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 140%; /* Imagem maior que o container para ter espaço para o efeito */
+    background-size: cover;
+    background-position: center;
+    z-index: -2; /* Fica atrás da camada escura e do texto */
+}
+
+.hero-container::before { /* Camada escura para legibilidade do texto */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+}
+
+.hero-texto {
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+}
+
+.hero-texto h1 {
+    font-size: 4rem;
+    margin: 0;
     text-transform: uppercase;
     letter-spacing: 2px;
 }
 
-header p {
+.hero-texto p {
+    font-size: 1.5rem;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
-.foto-noivos {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid white;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    margin-bottom: 1rem;
-}
+/* ============================================== */
 
 .filtros-container {
     text-align: center;
@@ -75,7 +99,6 @@ header p {
 
 .container-presentes {
     display: grid;
-    /* Por padrão (PC), ele cria quantas colunas de 280px couberem */
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     padding: 20px;
@@ -174,7 +197,7 @@ header p {
     margin: 10% auto;
     padding: 20px 30px;
     border-radius: 16px;
-    max-width: 90%; /* Ajuste para telas pequenas */
+    max-width: 90%;
     position: relative;
     text-align: center;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
@@ -209,8 +232,14 @@ header p {
 }
 
 footer {
-    text-align: center; padding: 2rem; margin-top: 3rem;
-    background-color: var(--cor-principal-verde); color: var(--cor-texto-claro); opacity: 0.9;
+    text-align: center;
+    padding: 2rem;
+    margin-top: 3rem;
+    background-color: var(--cor-principal-verde);
+    color: var(--cor-texto-claro);
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 @keyframes floatUp {
@@ -222,37 +251,15 @@ footer {
     to { opacity: 1; }
 }
 
-/* ======================================================= */
-/* === REGRAS ESPECIAIS PARA CELULAR (TELAS PEQUENAS) === */
-/* ======================================================= */
 @media (max-width: 600px) {
-
-    /* Força a grade a ter sempre 2 colunas */
     .container-presentes {
         grid-template-columns: repeat(2, 1fr);
-        gap: 15px; /* Diminui o espaçamento entre os cards */
+        gap: 15px;
         padding: 15px;
     }
-
-    /* Ajusta o tamanho da imagem e das fontes nos cards */
-    .presente-img {
-        height: 120px;
-    }
-
-    .card-body {
-        padding: 10px;
-    }
-
-    .presente-nome {
-        font-size: 1.1rem; /* Diminui a fonte do nome */
-    }
-
-    .presente-preco {
-        font-size: 1.1rem; /* Diminui a fonte do preço */
-    }
-
-    .btn-presentear {
-        padding: 12px;
-        font-size: 0.9rem;
-    }
+    .presente-img { height: 120px; }
+    .card-body { padding: 10px; }
+    .presente-nome { font-size: 1.1rem; }
+    .presente-preco { font-size: 1.1rem; }
+    .btn-presentear { padding: 12px; font-size: 0.9rem; }
 }

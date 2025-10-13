@@ -5,21 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Presentes - Marianna & Renato</title>
     <link rel="stylesheet" href="style.css">
-
     <link rel="icon" type="image/png" href="images/favicon.png">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Raleway:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <header>
-        <img src="images/foto-noivos.jpg" alt="Foto dos Noivos" class="foto-noivos">
-        <h1>MARIANNA & RENATO</h1>
-        <p>NOSSA LISTA DE PRESENTES</p>
-    </header>
-
+    <div class="hero-container">
+        <div class="hero-imagem" style="background-image: url('images/foto-noivos.jpg');"></div>
+        <div class="hero-texto">
+            <h1>MARIANNA & RENATO</h1>
+            <p>NOSSA LISTA DE PRESENTES</p>
+        </div>
+    </div>
     <div class="filtros-container">
         <label for="ordenar-presentes">Ordenar por:</label>
         <select id="ordenar-presentes">
@@ -28,6 +27,7 @@
             <option value="maior-preco">Maior Preço</option>
         </select>
     </div>
+
     <main>
         <div id="lista-presentes" class="container-presentes"></div>
     </main>
@@ -55,7 +55,6 @@
     <footer>
         <p>CATRACA GROUP &copy; 2025</p>
     </footer>
-
     <script src="script.js"></script>
 </body>
 </html>
