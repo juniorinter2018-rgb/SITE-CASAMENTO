@@ -1,7 +1,7 @@
-// backend/server.js (com ordenação aleatória)
+// backend/server.js (CORRIGIDO)
 require('dotenv').config();
 const express = require('express');
-const path = path();
+const path = require('path'); // <--- ESTA LINHA FOI CORRIGIDA
 const db = require('./db'); 
 
 const app = express();
