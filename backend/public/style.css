@@ -1,6 +1,6 @@
 /* Estilos Gerais Finais (com scroll inteligente no modal) */
 :root {
-    --cor-principal-verde: #556B2F;
+    --cor-principal-verde: #556B2F; /* <-- Cor VERDE original da Mariana */
     --cor-acento-dourado: #B8860B;
     --cor-fundo-pagina: #f9f9f9;
     --cor-fundo-card: #FFFFFF;
@@ -10,7 +10,7 @@
 }
 
 body {
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Raleway', sans-serif; /* <-- Fonte original da Mariana */
     margin: 0;
     padding: 0;
     background-color: var(--cor-fundo-pagina);
@@ -18,7 +18,7 @@ body {
 }
 
 h1, h2 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', serif; /* <-- Fonte original da Mariana */
     font-weight: 700;
 }
 
@@ -235,9 +235,8 @@ h1, h2 {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     box-sizing: border-box;
 
-    /* <<<<<<<<<<<<<<<<<<<< CORREÇÃO APLICADA AQUI <<<<<<<<<<<<<<<<<<<< */
-    max-height: 90vh; /* Define uma altura máxima (90% da altura da janela) */
-    overflow-y: auto;  /* Mostra a barra de scroll vertical APENAS se o conteúdo for maior */
+    max-height: 90vh; 
+    overflow-y: auto;  
 }
 
 .fechar-modal {
@@ -332,6 +331,31 @@ footer {
     background-color: #2E8B57;
     transition: background-color 0.3s;
 }
+
+/* ############ NOVO ESTILO PARA O WHATSAPP ############ */
+.orcamento {
+    font-size: 0.9rem;
+    font-weight: 400;
+    text-transform: none; /* Tira o uppercase do footer */
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+    margin-bottom: 0; /* Remove margem extra */
+    color: #f0f0f0; /* Um pouco mais claro que o branco total */
+    opacity: 0.8;
+}
+
+.orcamento a {
+    color: #FFFFFF; /* Branco para destacar o link */
+    font-weight: 700; /* Deixa o "Entre em contato" em negrito */
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.orcamento a:hover {
+    color: var(--cor-acento-dourado); /* Fica dourado ao passar o mouse */
+}
+/* ############ FIM DO NOVO ESTILO ############ */
+
 
 @media (max-width: 600px) {
     .hero-texto h1 { font-size: 2.5rem; }
